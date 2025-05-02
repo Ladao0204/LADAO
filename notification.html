@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notification</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #1e3a8a, #3b82f6); /* Gradient background */
+      color: white;
+      font-family: 'Roboto', sans-serif;
+    }
+    #notifContainer {
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .notif-card {
+      background-color: #ffffff;
+      color: #1e3a8a;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .notif-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+    .btn-clear {
+      background-color: #f87171;
+      color: white;
+      padding: 0.5rem 2rem;
+      border-radius: 0.5rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      transition: background-color 0.3s;
+    }
+    .btn-clear:hover {
+      background-color: #dc2626;
+    }
+  </style>
+</head>
+<body class="p-6">
+
+  <nav class="flex justify-between items-center bg-blue-900 p-4 text-white rounded mb-6">
+    <div class="text-xl font-bold">Lost & Found</div>
+    <div class="space-x-4">
+      <a href="home.html" class="hover:border-b-2">Home</a>
+      <a href="result.html" class="hover:border-b-2">Result</a>
+      <a href="notification.html" class="underline font-semibold">Notification</a>
+    </div>
+  </nav>
+
+  <h1 class="text-4xl font-bold mb-6 text-center">Notifications</h1>
+
+  <div id="notifContainer" class="space-y-4">
+    <!-- Notifications will appear here -->
+  </div>
+
+  <div class="flex justify-center mt-8">
+    <button onclick="clearNotifications()" class="btn-clear">Clear All Notifications</button>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const notifContainer = document.getElementById("notifContainer");
+      const notifications = JSON.parse(localStorage.getItem("notifications") || "[]");
+
+      if (notifications.length === 0) {
+        notifContainer.innerHTML = `<p class="text-gray-300 text-center">No notifications yet.</p>`;
+      } else {
+        notifications.reverse().forEach(notif => {
+          const div = document.createElement("div");
+          div.className = "notif-card";
+          div.innerText = notif;
+          notifContainer.appendChild(div);
+        });
+      }
+    });
+
+    function clearNotifications() {
+      localStorage.removeItem("notifications");
+      document.getElementById("notifContainer").innerHTML = `<p class="text-gray-300 text-center">No notifications yet.</p>`;
+    }
+  </script>
+
+</body>
+</html>

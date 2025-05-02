@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Result</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+      color: white;
+      font-family: 'Roboto', sans-serif;
+    }
+    #itemsContainer {
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .card {
+      background-color: #ffffff;
+      color: #1e3a8a;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+    .btn-primary {
+      background-color: #3b82f6;
+      color: white;
+      padding: 0.8rem 2rem;
+      border-radius: 0.5rem;
+      text-transform: uppercase;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+    .btn-primary:hover {
+      background-color: #2563eb;
+    }
+    .input-field {
+      border: 1px solid #e5e7eb;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      transition: border 0.3s;
+    }
+    .input-field:focus {
+      border: 1px solid #3b82f6;
+      outline: none;
+    }
+    .navbar a:hover {
+      border-bottom: 2px solid #3b82f6;
+    }
+  </style>
+</head>
+<body class="p-6">
+
+  <nav class="flex justify-between items-center bg-blue-900 p-4 text-white rounded mb-6">
+    <div class="text-xl font-bold">Lost & Found</div>
+    <div class="space-x-4 navbar">
+      <a href="home.html" class="hover:border-b-2">Home</a>
+      <a href="result.html" class="underline font-semibold">Result</a>
+      <a href="notification.html" class="hover:border-b-2">Notification</a>
+    </div>
+  </nav>
+
+  <h1 class="text-4xl font-bold mb-6 text-center">Result</h1>
+
+  <input
+    type="text"
+    id="searchInput"
+    placeholder="Search lost item..."
+    class="mb-6 w-full p-4 rounded-lg text-black shadow-lg"
+    onkeyup="filterItems()"
+  />
+
+  <div id="itemsContainer" class="space-y-4">
+    <!-- Items will be inserted here by JavaScript -->
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-50">
+    <div class="bg-white p-6 rounded-lg w-80 text-blue-900 relative">
+      <button class="absolute top-2 right-3 text-red-600" onclick="closeModal()">✕</button>
+      <img id="modalImg" src="" alt="Item image" class="w-full h-40 object-cover rounded mb-4" />
+      <h2 id="modalTitle" class="text-xl font-bold"></h2>
+      <p id="modalLoc" class="text-sm"></p>
+      <p id="modalReporter" class="text-sm"></p>
+      <p id="modalTime" class="text-sm"></p>
+      <p id="modalStatus" class="text-sm font-semibold mt-2"></p>
+    </div>
+  </div>
+
+  <script>
+    // Load items from localStorage
+    document.addEventListener("DOMContentLoaded", () => {
+      const items = JSON.parse(localStorage.getItem("lostItems") || "[]");
+      const container = document.getElementById("itemsContainer");
+
+      container.innerHTML = ""; // Clear any static HTML
+
+      items.forEach((item, index) => {
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "card flex flex-col sm:flex-row sm:items-center cursor-pointer";
+        itemDiv.onclick = () => showDetails(item);
+
+        itemDiv.innerHTML = `
+          <div class="flex items-center">
+            <img src="${item.image}" class="w-16 h-16 object-cover rounded mr-4" />
+            <div>
+              <h2 class="font-semibold text-lg">${item.name}</h2>
+              <p>Location: ${item.location}</p>
+              <p>Status: ${item.status}</p>
+            </div>
+          </div>
+          ${item.status === "Pending" ? ` 
+            <button onclick="markAsClaimed(${index}, event)" class="mt-4 sm:mt-0 sm:ml-auto btn-primary">Mark as Claimed</button>
+          ` : ""}
+        `;
+        container.appendChild(itemDiv);
+      });
+    });
+
+    function filterItems() {
+      const query = document.getElementById("searchInput").value.toLowerCase();
+      const items = document.querySelectorAll(".card");
+      items.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(query) ? "flex" : "none";
+      });
+    }
+
+    function showDetails(item) {
+      document.getElementById("modalTitle").innerText = item.name;
+      document.getElementById("modalLoc").innerText = "Location: " + item.location;
+      document.getElementById("modalReporter").innerText = "Reported by: " + item.reporter;
+      document.getElementById("modalTime").innerText = "Time: " + item.time;
+      document.getElementById("modalStatus").innerText = "Status: " + item.status;
+      document.getElementById("modalImg").src = item.image;
+      document.getElementById("modal").classList.remove("hidden");
+    }
+
+    function closeModal() {
+      document.getElementById("modal").classList.add("hidden");
+    }
+
+    function markAsClaimed(index, event) {
+      event.stopPropagation(); // Prevent modal from opening
+
+      const items = JSON.parse(localStorage.getItem("lostItems") || "[]");
+      items[index].status = "Returned";
+      localStorage.setItem("lostItems", JSON.stringify(items));
+
+      // Add a notification
+      const notifications = JSON.parse(localStorage.getItem("notifications") || "[]");
+      notifications.push(`✅ ${items[index].name} has been claimed by the owner.`);
+      localStorage.setItem("notifications", JSON.stringify(notifications));
+
+      // Refresh the page
+      location.reload();
+    }
+  </script>
+
+</body>
+</html>

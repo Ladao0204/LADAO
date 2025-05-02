@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Home - Lost & Found</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+      color: white;
+      font-family: 'Roboto', sans-serif;
+    }
+    .card {
+      background-color: #ffffff;
+      color: #1e3a8a;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+    .btn-primary {
+      background-color: #3b82f6;
+      color: white;
+      padding: 0.8rem 2rem;
+      border-radius: 0.5rem;
+      text-transform: uppercase;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+    .btn-primary:hover {
+      background-color: #2563eb;
+    }
+    .navbar a:hover {
+      border-bottom: 2px solid #3b82f6;
+    }
+    .input-field {
+      border: 1px solid #e5e7eb;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      transition: border 0.3s;
+    }
+    .input-field:focus {
+      border: 1px solid #3b82f6;
+      outline: none;
+    }
+  </style>
+</head>
+<body class="p-6">
+
+  <nav class="flex justify-between items-center bg-blue-900 p-4 text-white rounded mb-6">
+    <div class="text-xl font-bold">Founders Keepers</div>
+    <div class="space-x-4 navbar">
+      <a href="home.html" class="hover:border-b-2">Home</a>
+      <a href="result.html" class="hover:border-b-2">Result</a>
+      <a href="notification.html" class="hover:border-b-2">Notification</a>
+    </div>
+  </nav>
+
+  <h1 class="text-4xl font-bold mb-6 text-center">Report Lost Item</h1>
+
+  <form id="addItemForm" class="card mx-auto w-full max-w-3xl" onsubmit="addItem(event)">
+    <div class="space-y-4">
+      <div>
+        <label class="block font-semibold">Item Name</label>
+        <input type="text" id="itemName" required class="input-field w-full" />
+      </div>
+      <div>
+        <label class="block font-semibold">Location</label>
+        <input type="text" id="itemLocation" required class="input-field w-full" />
+      </div>
+      <div>
+        <label class="block font-semibold">Reported By</label>
+        <input type="text" id="itemReporter" required class="input-field w-full" />
+      </div>
+      <div>
+        <label class="block font-semibold">Time Found</label>
+        <input type="time" id="itemTime" required class="input-field w-full" />
+      </div>
+      <div>
+        <label class="block font-semibold">Upload Image</label>
+        <input type="file" id="itemImage" accept="image/*" required class="input-field w-full" />
+      </div>
+
+      <input type="hidden" id="itemStatus" value="Pending" />
+
+      <button type="submit" class="btn-primary w-full">Add Item</button>
+    </div>
+  </form>
+
+  <div id="itemImageSection" class="mt-6 hidden card">
+    <h2 class="text-xl font-semibold">Item Image</h2>
+    <img id="addedItemImage" class="w-full h-64 object-cover rounded" alt="Lost Item Image" />
+  </div>
+
+  <script>
+    function addItem(event) {
+      event.preventDefault();
+
+      // Get the item details from the form
+      const item = {
+        name: document.getElementById("itemName").value,
+        location: document.getElementById("itemLocation").value,
+        reporter: document.getElementById("itemReporter").value,
+        time: document.getElementById("itemTime").value,
+        status: "Pending", // Fixed status
+      };
+
+      // Handle the image file input
+      const imageFile = document.getElementById("itemImage").files[0];
+      if (imageFile) {
+        const reader = new FileReader();
+        reader.onloadend = function () {
+          item.image = reader.result; // This stores the base64 encoded image
+          
+          // Save the item to localStorage
+          const items = JSON.parse(localStorage.getItem("lostItems") || "[]");
+          items.push(item);
+          localStorage.setItem("lostItems", JSON.stringify(items));
+
+          // Display the added item image
+          const itemImageSection = document.getElementById("itemImageSection");
+          const addedItemImage = document.getElementById("addedItemImage");
+
+          addedItemImage.src = reader.result; // Set the base64 image source
+          itemImageSection.classList.remove("hidden"); // Show the item image section
+
+          alert("Item added successfully!");
+          document.getElementById("addItemForm").reset();
+        };
+        reader.readAsDataURL(imageFile); // Convert the image file to base64
+      } else {
+        alert("Please upload an image file.");
+      }
+    }
+  </script>
+
+</body>
+</html>
